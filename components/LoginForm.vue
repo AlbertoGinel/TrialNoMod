@@ -16,7 +16,6 @@ const login = async () => {
     const headers = new Headers({
       "Content-Type": "application/json",
     });
-
     const { data, pending, error, refresh } = await useFetch(url, {
       method: "POST",
       headers: headers,
@@ -59,6 +58,13 @@ const login = async () => {
 };
 </script>
 
+Ensure Cookie Settings are Correct: When setting a cookie, it's crucial to
+include attributes such as Secure, HttpOnly, SameSite, and potentially Domain
+and Path to ensure the cookie is sent with every request to the appropriate
+domain and path. These attributes help secure the cookie and prevent it from
+being accessed or modified by client-side scripts, which is essential for
+session management security 1.
+
 <template>
   <form @submit.prevent="login">
     <div>
@@ -74,3 +80,55 @@ const login = async () => {
     <div v-if="error">{{ error }}</div>
   </form>
 </template>
+
+<style>
+/* Styles for the login form container */
+.login-form {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 20px;
+  border: 1px solid #ddd;
+  border-radius: 5px;
+  width: 300px; /* Adjust width as needed */
+  margin: 0 auto; /* Center the form horizontally */
+}
+
+/* Styles for the label and input elements */
+label {
+  display: block;
+  margin-bottom: 5px;
+  font-weight: bold;
+}
+
+input[type="text"],
+input[type="password"] {
+  width: 100%;
+  padding: 10px;
+  border: 1px solid #ccc;
+  border-radius: 3px;
+  box-sizing: border-box; /* Include padding in width calculation */
+  margin-bottom: 15px;
+}
+
+/* Styles for the submit button */
+button[type="submit"] {
+  background-color: #4caf50; /* Green */
+  color: white;
+  padding: 10px 20px;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  transition: 0.3s; /* Add a smooth hover effect */
+}
+
+button[type="submit"]:hover {
+  background-color: #3e8e41; /* Darker green on hover */
+}
+
+/* Styles for the error message */
+.error {
+  color: red;
+  font-weight: bold;
+}
+</style>
