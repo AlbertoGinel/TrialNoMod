@@ -1,0 +1,26 @@
+POST https://api.fxer.net/api/login HTTP/1.1
+Content-Type: application/json
+
+{
+    "email": "trial@fxer.net",
+    "password": "dxgSF883",
+    "json": "true"
+}
+
+###
+GET https://api.fxer.net/api/logout HTTP/1.1
+Content-Type: application/json
+###
+GET https://api.fxer.net/api/trial HTTP/1.1
+content-type: application/json
+
+{}
+###
+POST https://api.fxer.net/api/login HTTP/1.1
+Content-Type: application/json
+
+{
+  "email": "********",
+  "password":  "********",
+  "json": "true"
+}
