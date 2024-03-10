@@ -3,6 +3,7 @@ import { ref } from "vue";
 
 const dataTx = ref([]);
 const dataModified = ref([]);
+const dataTxLoaded = ref(false);
 
 const filters = ref({
   date: "",
@@ -26,6 +27,32 @@ const resetFilters = () => {
   filters.value.short_percent = 0;
   filters.value.short_positions = 0;
   filters.value.short_volume = 0;
+};
+
+const fetchData = async () => {
+  try {
+    console.log("here!");
+    const { data, pending, error, refresh } = await useFetch("/api/trial2", {
+      onRequest({ request, options }) {
+        console.log("onRequest");
+      },
+      onRequestError({ request, options, error }) {
+        console.log("onRequestError");
+      },
+      onResponse({ request, response, options }) {
+        console.log("onResponse", response._data.body);
+        dataTx.value = response._data.body;
+        dataTxLoaded.value = true;
+        console.log("response :", dataTx.value.length);
+      },
+      onResponseError({ request, response, options }) {
+        console.log("onResponseError");
+      },
+    });
+  } catch (error) {
+    console.error(error);
+    // Handle errors appropriately
+  }
 };
 
 // Pagination
@@ -96,32 +123,24 @@ const filterData = () => {
   currentPage.value = 0;
 };
 
-const { data, pending, error, refresh } = await useFetch("/api/trial2", {
-  onRequest({ request, options }) {
-    console.log("onRequest");
-  },
-  onRequestError({ request, options, error }) {
-    console.log("onRequestError");
-  },
-  onResponse({ request, response, options }) {
-    console.log("onResponse");
-    dataTx.value = response._data.body;
-  },
-  onResponseError({ request, response, options }) {
-    console.log("onResponseError");
-  },
-});
-
 watchEffect(() => {
   filterData();
+});
+
+const randomKey = () => {
+  return Math.random().toString(36).substring(7);
+};
+
+onBeforeMount(() => {
+  // This code will run only on the server-side!!!
+  fetchData();
 });
 </script>
 
 <template>
-  <div>
-    <button @click="resetData">Reset</button>
+  <div v-show="dataTxLoaded">
+    <button @click="resetFilters()">Reset</button>
     <button @click="signOut()">Sign out</button>
-
     <div>
       <h1>Dashboard</h1>
       <div class="input-grid">
@@ -135,6 +154,8 @@ watchEffect(() => {
             type="number"
             id="avg_long_price"
             v-model="filters.avg_long_price"
+            step="0.001"
+            min="0"
           />
         </div>
         <div class="input-container">
@@ -143,6 +164,7 @@ watchEffect(() => {
             type="number"
             id="long_percent"
             v-model="filters.long_percent"
+            min="0"
           />
         </div>
         <div class="input-container">
@@ -151,11 +173,17 @@ watchEffect(() => {
             type="number"
             id="long_positions"
             v-model="filters.long_positions"
+            min="0"
           />
         </div>
         <div class="input-container">
           <label for="long_volume">Long Volume:</label>
-          <input type="number" id="long_volume" v-model="filters.long_volume" />
+          <input
+            type="number"
+            id="long_volume"
+            min="0"
+            v-model="filters.long_volume"
+          />
         </div>
         <div class="input-container">
           <label for="avg_short_price">Avg Short Price:</label>
@@ -163,6 +191,8 @@ watchEffect(() => {
             type="number"
             id="avg_short_price"
             v-model="filters.avg_short_price"
+            min="0"
+            step="0.001"
           />
         </div>
         <div class="input-container">
@@ -171,6 +201,7 @@ watchEffect(() => {
             type="number"
             id="short_percent"
             v-model="filters.short_percent"
+            min="0"
           />
         </div>
         <div class="input-container">
@@ -179,6 +210,7 @@ watchEffect(() => {
             type="number"
             id="short_positions"
             v-model="filters.short_positions"
+            min="0"
           />
         </div>
         <div class="input-container">
@@ -187,6 +219,7 @@ watchEffect(() => {
             type="number"
             id="short_volume"
             v-model="filters.short_volume"
+            min="0"
           />
         </div>
       </div>
@@ -249,7 +282,7 @@ watchEffect(() => {
         </thead>
         <tbody>
           <!-- Iterate over paginatedData -->
-          <tr v-for="item in paginatedData" :key="item.nameCommon">
+          <tr v-for="item in paginatedData" :key="randomKey()">
             <td>{{ item.date }}</td>
             <td>{{ item.avg_long_price }}</td>
             <td>{{ item.long_percent }}</td>
@@ -263,6 +296,9 @@ watchEffect(() => {
         </tbody>
       </table>
     </div>
+  </div>
+  <div v-show="!dataTxLoaded">
+    <div>Loading...</div>
   </div>
 </template>
 
